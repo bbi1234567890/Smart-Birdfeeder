@@ -1,8 +1,8 @@
 # Smart Birdfeeder
 Custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32
 
-<img width="4032" height="3024" alt="IMG_9375" src="https://github.com/user-attachments/assets/3c843abe-2c71-4072-b840-5e109d606ce0" />
-<img width="686" height="407" alt="image" src="https://github.com/user-attachments/assets/7ee0abe9-cdf9-4933-a5fc-0370b7c4935b" />
+<img width="4032" height="3024" alt="IMG_9375" src="https://github.com/user-attachments/assets/1efc5c30-0358-4618-b9c9-5ca29b601185" />
+<img width="695" height="409" alt="image" src="https://github.com/user-attachments/assets/f362e258-c046-48c3-8c1c-d6a928ea3dca" />
 
 # Features
 
@@ -12,9 +12,8 @@ Custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32
 
 # Hardware
 
-<img width="3534" height="2379" alt="IMG_9368" src="https://github.com/user-attachments/assets/9e175873-def4-49ab-b3e5-d31b3d1afc99" />
-<img width="1100" height="950" alt="birdfeeder_diagram" src="https://github.com/user-attachments/assets/e68878c9-80b1-4537-b989-8ebe3becce0c" />
-
+<img width="3534" height="2379" alt="IMG_9368" src="https://github.com/user-attachments/assets/a0aa229b-21ab-49cb-b506-dc8f67567ef5" />
+<img width="1100" height="950" alt="birdfeeder_diagram" src="https://github.com/user-attachments/assets/455f704b-3b6b-4adf-972f-45cc30c0de38" />
 
 List of materials:
 - Raspberry Pi Zero 2 W
