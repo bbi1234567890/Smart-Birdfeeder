@@ -43,3 +43,22 @@ The ESP32 controls power delivery to the Pi via a GPIO pin. When the MOSFET GPIO
 
 When I first designed this circuit, I didn't include the BJT transistor and routed the MOSFET GPIO pin directly to the gate of the MOSFET. What I didn't realize was that the ESP32 GPIO pins only output 3.3V, which was a problem because the MOSFET's input was 5V, meaning the output voltage wouldn't be enough for the Pi. I fixed this by adding the BJT transistor, which allows a full 5V to pass through to the MOSFET gate with only a 3.3V signal. One might think that I could've just used the BJT transistor without the MOSFET to control power delivery, but the BJT transistor can't handle nearly enough the amount of amperage the Pi uses, so the MOSFET is necessary after all.
 
+# Software
+
+### Discord Bot
+
+I have a Raspberry Pi 4 plugged in 24/7 in my room serving as the intermediary between the birdfeeder and the outside world. The Pi 4 runs a Discord bot equipped with several commands that, when sent on the Birdfeeder's Discord server, attempts to ping either the ESP32 or Pi via MQTT, depending on the command. The commands are listed below.
+
+| Command | Description |
+| ------------- | ------------- |
+| request_stream | Tells the ESP32 to send a go-live signal to the Pi.  |
+| request_url  | Used to obtain the current stream URL.  |
+| off | Tells the ESP32 to turn the Pi off.  |
+| on | Tells the ESP32 to turn the Pi on.  |
+| restart_esp32  | Tells the ESP32 to restart (in case of any errors).  |
+| restart_pi  | Tells the ESP32 to restart the Pi (in case of any error, or to re-enter the script after a Pi script update).  |
+| exit  | Tells the ESP32 to tell the Pi to exit its script (only used for Pi script updates). |
+
+### ESP32
+
+The ESP32 has the ability to connect to WiFI and, subsequently, the MQTT client. When 
