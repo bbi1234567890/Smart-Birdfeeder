@@ -1,5 +1,5 @@
 # Smart Birdfeeder
-Custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32
+A custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32.
 
 
 <img width="4032" height="3024" alt="IMG_9375" src="https://github.com/user-attachments/assets/1efc5c30-0358-4618-b9c9-5ca29b601185" />
@@ -8,9 +8,9 @@ Custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32
 
 # Features
 
-- Real-time motion detection and image capture with species classification using AI
-- Live-streaming capabilities over the Internet
-- Powered fully by solar energy along with custom power management
+- Real-time motion detection and image capture with species classification using AI.
+- Live-streaming capabilities over the Internet.
+- Powered fully by solar energy along with custom power management.
 
 # Hardware
 
@@ -37,7 +37,7 @@ Custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32
 
 ### Power Management
 
-Firstly, the ESP32 is constantly powered, but mostly in deep sleep, which uses a negligible amount of power. The ESP32 wakes up from deep sleep periodically to check to see if any stream requests are pending via MQTT, and also if the Pi is still responsive (via the PULSE/heartbeat signal) or has crashed, with the latter causing the ESP32 to power cycle the Pi. Every once in a while, the ESP32 will obtain the current time from an NTP server, and if it is night, it will switch the Pi off until it is morning again.
+Firstly, the ESP32 is constantly powered, but mostly in deep sleep, which uses a negligible amount of power. The ESP32 wakes up from deep sleep periodically to check to see if any stream requests are pending via MQTT, and also if the Pi is still responsive (via the PULSE/heartbeat signal) or has crashed, with the latter causing the ESP32 to power cycle the Pi.
 
 The ESP32 controls power delivery to the Pi via a GPIO pin. When the MOSFET GPIO pin is pulled high, it allows GND to pass through the BJT transistor into the gate of the P-Channel MOSFET, which allows 5V to pass through it, turning on the Pi.
 
@@ -61,4 +61,12 @@ I have a Raspberry Pi 4 plugged in 24/7 in my room serving as the intermediary b
 
 ### ESP32
 
-The ESP32 has the ability to connect to WiFI and, subsequently, the MQTT client. When 
+As stated previously, the ESP32 is used for power management for the birdfeeder. The ESP32 wakes up from deep sleep periodically, attempts to connect to WiFi and the MQTT client, and listens for commands while monitoring the Pi's status (checking to see if the Pi has frozen). 
+
+If the Pi stops sending a periodic heartbeat signal via the PULSE pin, the ESP32 will power-cycle the Pi and go back to sleep. When a go-live message hasn't been received after several seconds, the ESP32 will also go back to sleep. When a go-live message is received, the ESP32 attempts to send a go-live signal to the Pi. If it succeeds and a livestream confirmation is received from the Pi via the RESPONSE pin, the ESP32 monitors the Pi's status while the Pi is livestreaming up until the Pi sends a shutdown confirmation to the ESP32 via the same pin.
+
+Occasionally, at startup, the ESP32 will connect to an NTP server to obtain the current time. If it is night, the ESP32 will cut power to the Pi until the ESP32 realizes it is day again.
+
+### Raspberry Pi
+
+To start, I have the script running as a systemd service, which automatically runs during startup. If the script somehow crashes, it will automatically restart the script.
