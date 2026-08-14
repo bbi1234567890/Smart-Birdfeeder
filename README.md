@@ -69,4 +69,12 @@ Occasionally, at startup, the ESP32 will connect to an NTP server to obtain the 
 
 ### Raspberry Pi
 
-To start, I have the script running as a systemd service, which automatically runs during startup. If the script somehow crashes, it will automatically restart the script.
+To start, I have the script pi_gpio.py running as a systemd service, which automatically runs during startup. If the script somehow crashes, it will automatically restart the process. pi_gpio.py will continuously check for incoming signals from the GPIO pins. If a signal from the PIR sensor is detected, pi_snap_and_classify.py will be executed, and if a livestream signal from the ESP32 is received, pi_stream.py will be executed. pi_gpio.py also contains the heartbeat code that pulses the ESP32's PULSE pin to make sure that it is alive.
+
+pi_snap_and_classify works by capturing 5 images, classifying them using the AI model, and pushing the image with the highest confidence value to Discord via a webhook. If WiFi isn't connected, the Pi will save the image locally and push it to Discord the next time WiFi is connected. If the Pi receives a livestream request in the middle of the pi_snap_and_classify process, it will run pi_stream and begin streaming immediately after the pi_snap_and_classify process has finished.
+
+pi_stream works by using FFmpeg to convert camera video data into an HLS stream and hosting it on an HTTP server. ngrok is used to forward this HTTP server to a public URL so that the livestream can be viewed outside of the local network. The Pi connects to the MQTT to listen for stop streaming commands from the Discord bot, and also for an adjustable livestream duration set by the user. If a livestream duration isn't set, the birdfeeder automatically stops streaming after 2 minutes.
+
+### AI Training
+
+
