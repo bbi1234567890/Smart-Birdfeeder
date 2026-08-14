@@ -20,7 +20,7 @@ MQTT_STATUS_TOPIC = "birdfeeder/pi/status"
 MQTT_COMMAND_TOPIC = "birdfeeder/pi/commands"
 HLS_OUTPUT_DIR = "/tmp/hls_stream"
 
-MQTT_BROKER = "10.0.0.48"  # Change to your MQTT broker address
+MQTT_BROKER = "10.0.0.48"
 MQTT_CLIENT_ID = "pi_zero"
 
 stream_timeout = 120
@@ -87,7 +87,6 @@ def serve_hls_files():
     global httpd
     try:
         os.makedirs(HLS_OUTPUT_DIR, exist_ok=True)
-        # Create a simple HTML page to host the video player
         with open(os.path.join(HLS_OUTPUT_DIR, "index.html"), "w") as f:
             f.write(
                 """
@@ -130,7 +129,6 @@ def serve_hls_files():
 
         class HLSHandler(http.server.SimpleHTTPRequestHandler):
             def translate_path(self, path):
-                # Strip query params, anchor
                 path = path.split('?', 1)[0].split('#', 1)[0]
                 path = posixpath.normpath(path).lstrip('/')
                 if path == '..' or path.startswith('../'):
@@ -254,13 +252,13 @@ def start_streaming(picam2, live_config):
         ffmpeg_command = [
             "ffmpeg",
             "-f", "h264", 
-            "-i", "pipe:0",  # Read video from stdin
-            "-an",  # No audio, simplify the command
+            "-i", "pipe:0", 
+            "-an",  
             "-c:v", "copy",
             "-f", "hls",
-            "-hls_time", "2",  # 2 second segment duration
-            "-hls_list_size", "5", # Keep last 5 segments in playlist
-            "-hls_flags", "delete_segments", # Clean up old segments
+            "-hls_time", "2",  
+            "-hls_list_size", "5",
+            "-hls_flags", "delete_segments", 
             os.path.join(HLS_OUTPUT_DIR, "stream.m3u8")
         ]
 
@@ -270,10 +268,6 @@ def start_streaming(picam2, live_config):
                                           stdout=subprocess.DEVNULL,
                                           stderr=open("/tmp/ffmpeg.log", "wb"),
                                           close_fds=True)
-
-        #stdout, stderr = ffmpeg_process.communicate()
-        #print(f"FFmpeg stdout: {stdout.decode()}")
-        #print(f"FFmpeg stderr: {stderr.decode()}")
         
         picam2.configure(live_config)
         print("Picamera2 configured for streaming.")
