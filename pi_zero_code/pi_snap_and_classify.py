@@ -29,7 +29,7 @@ def capture_image(directory="/home/birdfeeder/home/images"):
 
 def load_model(model_path="/home/birdfeeder/home/model.tflite"):
     try:
-        
+
         import tflite_runtime.interpreter as tf
         
         interpreter = tf.Interpreter(model_path=model_path)
@@ -61,79 +61,50 @@ def classify_image(interpreter, input_details, output_details, image_path):
     input_shape = input_details[0]['shape']
     input_dtype = input_details[0]['dtype']
 
-    input_quantization_params = input_details[0].get('quantization_parameters', {}) # Use .get() for safety
-    if not input_quantization_params: # Fallback for older models/runtimes using 'quantization' key
+    input_quantization_params = input_details[0].get('quantization_parameters', {}) 
+    if not input_quantization_params: 
         input_quantization_params = input_details[0].get('quantization', {})
 
-    input_scale = input_quantization_params.get('scales', [0.0])[0] # Get first scale
-    input_zero_point = input_quantization_params.get('zero_points', [0])[0] # Get first zero_point
+    input_scale = input_quantization_params.get('scales', [0.0])[0] 
+    input_zero_point = input_quantization_params.get('zero_points', [0])[0] 
 
-    # --- Get output tensor details and quantization parameters ---
     output_index = output_details[0]['index']
-    output_quantization_params = output_details[0].get('quantization_parameters', {}) # Use .get() for safety
-    if not output_quantization_params: # Fallback for older models/runtimes using 'quantization' key
+    output_quantization_params = output_details[0].get('quantization_parameters', {}) 
+    if not output_quantization_params: 
         output_quantization_params = output_details[0].get('quantization', {})
 
-    output_scale = output_quantization_params.get('scales', [0.0])[0] # Get first scale
-    output_zero_point = output_quantization_params.get('zero_points', [0])[0] # Get first zero_point
+    output_scale = output_quantization_params.get('scales', [0.0])[0] 
+    output_zero_point = output_quantization_params.get('zero_points', [0])[0]
 
-
-    # --- Preprocessing the image for INT8 model input ---
-    # Start with the image as float32 (0-255)
     input_data = np.array(image, dtype=np.float32)
 
-    # Apply quantization: (real_value / scale) + zero_point
-    # Ensure scale is not zero to avoid division by zero
     if input_scale == 0.0:
-        # If scale is zero, it usually means the tensor is not quantized or is a constant.
-        # Handle this case by assuming it's already in the correct range for its dtype.
-        # This often happens for unquantized models or specific layers.
-        # For a truly INT8 model, scale should not be zero.
         if input_dtype == np.int8:
-            # If it expects int8 but scale is 0, it might imply values are already in int8 range (-128 to 127)
             input_scaled = np.array(image, dtype=np.int8)
         elif input_dtype == np.uint8:
-            # If it expects uint8 but scale is 0, it might imply values are already in uint8 range (0 to 255)
             input_scaled = np.array(image, dtype=np.uint8)
         else:
-            # Default to float32 conversion if scale is 0 and not explicitly int8/uint8
             input_scaled = input_data
     else:
-        # Quantize the float data to the integer range
         input_scaled = input_data / input_scale + input_zero_point
-
-    # Clip values to the valid range for the target integer type
-    # For int8, this is typically -128 to 127
-    # For uint8, this is typically 0 to 255
+        
     if input_dtype == np.int8:
         input_scaled = np.clip(input_scaled, -128, 127)
     elif input_dtype == np.uint8:
         input_scaled = np.clip(input_scaled, 0, 255)
     else:
-        # If the input_dtype is float32 (e.g., if you only did dynamic range quantization)
-        # then no clipping to integer range is needed here.
-        pass # The initial float32 conversion is fine.
+        pass
+        
+    input_data = input_scaled.astype(input_dtype) 
+    input_data = np.expand_dims(input_data, axis=0) 
 
-    input_data = input_scaled.astype(input_dtype) # Cast to the model's expected integer type
-    input_data = np.expand_dims(input_data, axis=0) # Add batch dimension
-
-    # --- Set the tensor and invoke the interpreter ---
     interpreter.set_tensor(input_index, input_data)
     interpreter.invoke()
 
-    # --- Get the raw quantized output ---
     output_data = interpreter.get_tensor(output_index)
 
-    # --- Post-processing: De-quantize the output ---
-    # The formula is: real_value = (quantized_value - zero_point) * scale
-    
-    # Check if the output is quantized (scale and zero_point will be non-zero for quantized outputs)
-    # Be careful: sometimes scale is not exactly 0.0 but very close for unquantized outputs.
-    # A common check is to see if output_details[0]['dtype'] is not float32.
-    if output_scale != 0.0 and output_quantization_params: # Also check if quantization params were actually found
+    if output_scale != 0.0 and output_quantization_params:
         output_data = (output_data.astype(np.float32) - output_zero_point) * output_scale
-    # If the output is already float32, no de-quantization is needed.
-    # Check its dtype from output_details[0]['dtype'] if unsure.
 
     predicted_class = bird_species[np.argmax(output_data[0])] if bird_species else np.argmax(output_data[0])
     confidence = output_data[0][np.argmax(output_data[0])]
