@@ -67,6 +67,8 @@ If the Pi stops sending a periodic heartbeat signal via the PULSE pin, the ESP32
 
 Occasionally, at startup, the ESP32 will connect to an NTP server to obtain the current time. If it is night, the ESP32 will cut power to the Pi until the ESP32 realizes it is day again.
 
+Originally, in order to maximize power efficiency, the plan was to attach the PIR sensor to the ESP32 instead of the Pi, and to keep the Pi completely off until there was motion detected or a livestream was requested. However, during testing, I found that the birdfeeder took a total of about 30 seconds after motion was detected to start taking pictures, even after optimizing the Pi's startup, which is incredibly slow. Soon after, I changed the power management to how it is now, where the Pi sits idle without WiFi connection until it receives a signal from the PIR sensor, which only takes about 7 seconds, which is a huge improvement in latency. 
+
 ### Raspberry Pi
 
 To start, I have the script pi_gpio.py running as a systemd service, which automatically runs during startup. If the script somehow crashes, it will automatically restart the process. pi_gpio.py will continuously check for incoming signals from the GPIO pins. If a signal from the PIR sensor is detected, pi_snap_and_classify.py will be executed, and if a livestream signal from the ESP32 is received, pi_stream.py will be executed. pi_gpio.py also contains the heartbeat code that pulses the ESP32's PULSE pin to make sure that it is alive.
@@ -77,4 +79,4 @@ pi_stream works by using FFmpeg to convert camera video data into an HLS stream 
 
 ### AI Training
 
-
+train_model.py first augments the training data (which consists of hundreds of bird pictures I screenshotted from the web) using ImageDataGenerator to artificially expand the dataset. It then loads a pretrained CNN model, MobileNetV2, freezes the base layers to preserve its already learned features, and only trains and fine-tunes the head to identify different bird species. To make classification more efficient on my Pi, I quantized the model resulting from train_model.py in quantize.py, converting the weights from float32 to int8.
