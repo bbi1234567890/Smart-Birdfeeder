@@ -15,6 +15,7 @@ A custom solar-powered smart birdfeeder powered by RPi Zero 2 W and ESP32.
 # Hardware
 
 
+<img width="3024" height="4032" alt="IMG_9374" src="https://github.com/user-attachments/assets/373bad4b-54ec-4c6b-8de5-c7b3c9a44296" />
 <img width="3534" height="2379" alt="IMG_9368" src="https://github.com/user-attachments/assets/a0aa229b-21ab-49cb-b506-dc8f67567ef5" />
 <img width="1100" height="950" alt="birdfeeder_diagram" src="https://github.com/user-attachments/assets/455f704b-3b6b-4adf-972f-45cc30c0de38" />
 
