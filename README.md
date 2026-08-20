@@ -81,3 +81,13 @@ pi_stream works by using FFmpeg to convert camera video data into an HLS stream 
 ### AI Training
 
 train_model.py first augments the training data (which consists of hundreds of bird pictures I screenshotted from the web) using ImageDataGenerator to artificially expand the dataset. It then loads a pretrained CNN model, MobileNetV2, freezes the base layers to preserve its already learned features, and only trains and fine-tunes the head to identify different bird species. To make classification more efficient on my Pi, I quantized the model resulting from train_model.py in quantize.py, converting the weights from float32 to int8.
+
+# Conclusion
+
+I learned how CNN AI models work and how they are trained, and also how to train them in the best possible way. Though I had trained my model with several hundred bird images, the iamges I trained them on were high-quality stock images taken from online, rather than images taken from my birdfeeder (I didn't have any yet), so the AI model will be quite inaccurate until I have enough images taken by the feeder itself.
+
+I also improved my systems thinking while designing the relationship between the ESP32, Raspberry Pi, and the Discord bot, and also improved my overall coding skills in both C and Python.
+
+I also challenged myself by making the feeder self-sufficient power-wise using solar energy, which required complex power mangement code for the ESP32. With my current power management, I estimate that I save around 40-50% of power compared to leaving the Raspberry Pi on 24/7, which is a huge improvement in efficiency.
+
+Overall, this project was an incredible learning experience for me, and also very successful.
